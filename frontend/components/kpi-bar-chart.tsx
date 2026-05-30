@@ -38,7 +38,7 @@ export function KpiBarChart({ data }: KpiBarChartProps) {
               color: 'hsl(var(--card-foreground))',
               fontSize: '12px',
             }}
-            formatter={(value: number) => [`${value} rolos`, 'Consumo']}
+            formatter={(value) => [`${value ?? 0} rolos`, 'Consumo']}
           />
           <Bar dataKey="rolls" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
         </BarChart>

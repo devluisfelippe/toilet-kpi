@@ -1,15 +1,10 @@
-import dynamic from 'next/dynamic'
 import { getMonthlyKpi } from '@/services/records.service'
 import { getChallenges } from '@/services/challenges.service'
 import { getDailyQuote } from '@/constants/quotes'
 import { ChallengesSection } from '@/components/challenges-section'
 import { DailyRecordDialog } from '@/components/daily-record-dialog'
 import { DailyQuote } from '@/components/daily-quote'
-
-const KpiBarChart = dynamic(
-  () => import('@/components/kpi-bar-chart').then((m) => m.KpiBarChart),
-  { ssr: false }
-)
+import { KpiBarChartClient } from '@/components/kpi-bar-chart-client'
 
 export default async function HomePage() {
   const [kpiResult, challengesResult] = await Promise.all([
@@ -24,7 +19,7 @@ export default async function HomePage() {
         <h1 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Consumo mensal — rolos
         </h1>
-        <KpiBarChart data={kpiResult.data} />
+        <KpiBarChartClient data={kpiResult.data} />
       </div>
 
       <DailyRecordDialog />

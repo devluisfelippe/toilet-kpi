@@ -7,49 +7,62 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { login } from '@/services/auth.service'
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [nickname, setNickname] = useState('')
+  const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: replace with POST /api/auth/login when API is ready
-    router.push('/home')
+    setErro('')
+    setLoading(true)
+    const res = await login(nickname.trim(), senha)
+    setLoading(false)
+    if (res.error) {
+      setErro(res.error)
+      return
+    }
+    router.replace('/home')
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-center text-lg">Entrar</CardTitle>
+        <CardTitle className="text-center text-lg">Entrar no trono</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="nickname">Nickname</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="voce@exemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="nickname"
+              type="text"
+              placeholder="seu_nickname"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              autoComplete="username"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="senha">Senha</Label>
             <Input
-              id="password"
+              id="senha"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              autoComplete="current-password"
               required
             />
           </div>
-          <Button type="submit" className="w-full">
-            Entrar
+          {erro && <p className="text-sm text-destructive">{erro}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Entrando…' : 'Entrar'}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">

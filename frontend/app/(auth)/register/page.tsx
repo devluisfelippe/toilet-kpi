@@ -7,61 +7,79 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { register } from '@/services/auth.service'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [nickname, setNickname] = useState('')
+  const [senha, setSenha] = useState('')
+  const [confirmar, setConfirmar] = useState('')
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    // TODO: replace with POST /api/auth/register when API is ready
-    router.push('/home')
+    setErro('')
+    if (senha !== confirmar) {
+      setErro('As senhas não coincidem.')
+      return
+    }
+    setLoading(true)
+    const res = await register(nickname.trim(), senha)
+    setLoading(false)
+    if (res.error) {
+      setErro(res.error)
+      return
+    }
+    router.replace('/home')
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-center text-lg">Criar conta</CardTitle>
+        <CardTitle className="text-center text-lg">Criar conta de guerreiro</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
+            <Label htmlFor="nickname">Nickname</Label>
             <Input
-              id="name"
+              id="nickname"
               type="text"
-              placeholder="Seu nome"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="seu_nickname_épico"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              autoComplete="username"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">E-mail</Label>
+            <Label htmlFor="senha">Senha</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="voce@exemplo.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
+              id="senha"
               type="password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              autoComplete="new-password"
               required
             />
           </div>
-          <Button type="submit" className="w-full">
-            Criar conta
+          <div className="space-y-2">
+            <Label htmlFor="confirmar">Confirmar senha</Label>
+            <Input
+              id="confirmar"
+              type="password"
+              placeholder="••••••••"
+              value={confirmar}
+              onChange={(e) => setConfirmar(e.target.value)}
+              autoComplete="new-password"
+              required
+            />
+          </div>
+          {erro && <p className="text-sm text-destructive">{erro}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Criando conta…' : 'Criar conta'}
           </Button>
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">

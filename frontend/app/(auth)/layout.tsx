@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           <span className="text-5xl">🧻</span>
           <h1 className="mt-3 text-2xl font-bold tracking-tight">Toilet KPI</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Transformando papel higiênico em consciência sustentável.
+            O trono é para os fortes. Prove seu valor.
           </p>
         </div>
         {children}

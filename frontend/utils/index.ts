@@ -1,2 +1,2 @@
+// frontend/utils/index.ts
 export { cn } from './cn'
-export { calculateKpi } from './calculate-kpi'

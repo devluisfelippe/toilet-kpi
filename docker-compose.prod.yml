@@ -1,0 +1,32 @@
+name: toilet-kpi
+
+# Override de PRODUÇÃO. Use junto com o base:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+#
+# Variáveis esperadas no ambiente (ou num .env ao lado):
+#   JWT_SECRET           segredo forte para assinar os JWT
+#   NEXT_PUBLIC_API_URL  URL pública do backend vista pelo navegador (default localhost:3001)
+
+services:
+  backend:
+    build:
+      target: prod
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET no ambiente de produção}
+    # Sem bind mount em prod: usa o dist já compilado na imagem.
+    volumes: !override []
+    restart: unless-stopped
+
+  frontend:
+    # Imagem genérica também em prod (o outro dev troca por um Dockerfile próprio).
+    # NEXT_PUBLIC_* é inlinado no build, por isso build + start a cada subida.
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    command: sh -c "npm install --no-package-lock && npm run build && npm run start"
+    volumes: !override
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped

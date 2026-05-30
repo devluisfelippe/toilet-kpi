@@ -16,8 +16,8 @@ interface KpiBarChartProps {
 
 export function KpiBarChart({ data }: KpiBarChartProps) {
   return (
-    <div className="h-48 w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full">
+      <ResponsiveContainer width="100%" height={192}>
         <BarChart data={data} margin={{ top: 4, right: 8, left: -24, bottom: 0 }}>
           <XAxis
             dataKey="month"

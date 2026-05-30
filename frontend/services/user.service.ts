@@ -1,18 +1,12 @@
-import type { UserProfile, ServiceResult } from './types'
+import type { ServiceResult, UserProfile } from './types'
 
-const MOCK_USER: UserProfile = {
-  rollPriceBrl: 2.5,
-  consumptionProfile: 'moderate',
+const EMPTY: UserProfile = {
+  nickname: '',
+  pcl: 0,
+  patente: '',
+  historicoRecente: [],
 }
 
-// TODO: replace with GET /api/user when API is ready
-export async function getUserProfile(): Promise<ServiceResult<UserProfile>> {
-  return { data: MOCK_USER }
-}
-
-// TODO: replace with PATCH /api/user when API is ready
-export async function updateUserProfile(
-  updates: Partial<UserProfile>
-): Promise<ServiceResult<UserProfile>> {
-  return { data: { ...MOCK_USER, ...updates } }
+export async function getMe(): Promise<ServiceResult<UserProfile>> {
+  return { data: EMPTY }
 }

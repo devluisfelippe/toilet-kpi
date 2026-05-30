@@ -1,4 +1,4 @@
-name: CI-DEV
+name: workflow-tests-dev
 
 on:
   pull_request:

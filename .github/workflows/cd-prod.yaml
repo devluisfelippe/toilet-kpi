@@ -5,8 +5,11 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+
 jobs:
   deploy:
+    environment: deploy
     runs-on: ubuntu-latest
 
     steps:

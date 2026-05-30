@@ -11,16 +11,18 @@ import { Request } from 'express';
 export class JwtAuthGuard implements CanActivate {
   constructor(private readonly jwt: JwtService) {}
 
-  async canActivate(ctx: ExecutionContext): Promise<boolean> {
-    const req = ctx.switchToHttp().getRequest<Request & { user?: string }>();
-    const header = req.headers['authorization'];
-    if (!header || !header.startsWith('Bearer ')) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context
+      .switchToHttp()
+      .getRequest<Request & { user?: string }>();
+    const authorizationHeader = request.headers['authorization'];
+    if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw new UnauthorizedException('Token ausente.');
     }
-    const token = header.slice('Bearer '.length);
+    const token = authorizationHeader.slice('Bearer '.length);
     try {
       const payload = await this.jwt.verifyAsync<{ sub: string }>(token);
-      req.user = payload.sub;
+      request.user = payload.sub;
       return true;
     } catch {
       throw new UnauthorizedException('Token inválido.');

@@ -17,13 +17,13 @@ describe('AuthService', () => {
 
   it('registra um novo usuário e devolve token', async () => {
     const users = makeUsers();
-    const svc = new AuthService(
+    const service = new AuthService(
       users as unknown as UsersService,
       jwt as unknown as JwtService,
     );
-    const out = await svc.register('zeca', 'segredo');
+    const resposta = await service.register('zeca', 'segredo');
     expect(users.createUser).toHaveBeenCalledWith('zeca', expect.any(String));
-    expect(out.token).toBe('token-fake');
+    expect(resposta.token).toBe('token-fake');
   });
 
   it('rejeita registro de nickname já existente', async () => {
@@ -32,43 +32,43 @@ describe('AuthService', () => {
         .fn()
         .mockResolvedValue({ nickname: 'zeca', password_hash: 'x' }),
     });
-    const svc = new AuthService(
+    const service = new AuthService(
       users as unknown as UsersService,
       jwt as unknown as JwtService,
     );
-    await expect(svc.register('zeca', 'segredo')).rejects.toBeInstanceOf(
+    await expect(service.register('zeca', 'segredo')).rejects.toBeInstanceOf(
       ConflictException,
     );
   });
 
   it('rejeita login com senha errada', async () => {
-    const hash = await bcrypt.hash('certa', 10);
+    const passwordHash = await bcrypt.hash('certa', 10);
     const users = makeUsers({
       findUser: jest
         .fn()
-        .mockResolvedValue({ nickname: 'zeca', password_hash: hash }),
+        .mockResolvedValue({ nickname: 'zeca', password_hash: passwordHash }),
     });
-    const svc = new AuthService(
+    const service = new AuthService(
       users as unknown as UsersService,
       jwt as unknown as JwtService,
     );
-    await expect(svc.login('zeca', 'errada')).rejects.toBeInstanceOf(
+    await expect(service.login('zeca', 'errada')).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
   });
 
   it('faz login com senha certa', async () => {
-    const hash = await bcrypt.hash('certa', 10);
+    const passwordHash = await bcrypt.hash('certa', 10);
     const users = makeUsers({
       findUser: jest
         .fn()
-        .mockResolvedValue({ nickname: 'zeca', password_hash: hash }),
+        .mockResolvedValue({ nickname: 'zeca', password_hash: passwordHash }),
     });
-    const svc = new AuthService(
+    const service = new AuthService(
       users as unknown as UsersService,
       jwt as unknown as JwtService,
     );
-    const out = await svc.login('zeca', 'certa');
-    expect(out.token).toBe('token-fake');
+    const resposta = await service.login('zeca', 'certa');
+    expect(resposta.token).toBe('token-fake');
   });
 });

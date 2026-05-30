@@ -5,12 +5,12 @@ import { Missao, MISSOES } from './missions.catalog';
 export class MissionsService {
   private readonly catalogo: ReadonlyArray<Missao> = MISSOES;
 
-  sortear(rng: () => number = Math.random): Missao {
-    const i = Math.floor(rng() * this.catalogo.length);
-    return this.catalogo[Math.min(i, this.catalogo.length - 1)];
+  sortear(gerarAleatorio: () => number = Math.random): Missao {
+    const indiceSorteado = Math.floor(gerarAleatorio() * this.catalogo.length);
+    return this.catalogo[Math.min(indiceSorteado, this.catalogo.length - 1)];
   }
 
   byId(id: string): Missao | undefined {
-    return this.catalogo.find((m) => m.id === id);
+    return this.catalogo.find((missao) => missao.id === id);
   }
 }

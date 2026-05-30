@@ -6,7 +6,6 @@ export interface AppConfig {
     keyspace: string;
   };
   jwt: { secret: string; expiresIn: string };
-  corsOrigin: string;
 }
 
 export function loadConfig(): AppConfig {
@@ -23,6 +22,5 @@ export function loadConfig(): AppConfig {
       secret: process.env.JWT_SECRET ?? 'dev-secret',
       expiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
     },
-    corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
   };
 }

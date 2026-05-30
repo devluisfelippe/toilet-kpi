@@ -17,6 +17,11 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit(): Promise<void> {
     const retries = 20;
     const delayMs = 3000;
+    this.logger.log(
+      `Iniciando conexão com Cassandra em: ${this.config.contactPoints.join(
+        ',',
+      )} (DC: ${this.config.localDataCenter})`,
+    );
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         await this.bootstrap();

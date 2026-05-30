@@ -1,0 +1,43 @@
+name: toilet-kpi
+
+services:
+  cassandra:
+    image: cassandra:5
+    container_name: toilet-kpi-cassandra
+    ports:
+      - "9042:9042"
+    env_file:
+      - .env
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+    networks:
+      - toilet-kpi-net
+
+  backend:
+    build:
+      context: ./
+      target: prod
+    container_name: toilet-kpi-backend
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+
+    restart: unless-stopped
+    networks:
+      - toilet-kpi-net
+
+volumes:
+  cassandra-data:
+
+networks:
+  toilet-kpi-net:
+    driver: bridge

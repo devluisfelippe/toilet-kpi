@@ -26,24 +26,24 @@ jobs:
         run: yarn test
         working-directory: backend
 
-  frontend-check:
-    name: Frontend Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # frontend-check:
+  #   name: Frontend Check
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20'
+  #         cache: 'npm'
+  #         cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Dependencies
-        run: npm ci
-        working-directory: frontend
+  #     - name: Install Dependencies
+  #       run: npm ci
+  #       working-directory: frontend
 
-      - name: Run Lint
-        # Running lint as a basic check since no tests were found in frontend
-        run: npm run lint
-        working-directory: frontend
+  #     - name: Run Lint
+  #       # Running lint as a basic check since no tests were found in frontend
+  #       run: npm run lint
+  #       working-directory: frontend

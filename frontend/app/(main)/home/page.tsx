@@ -41,11 +41,14 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    if (!getToken()) {
-      router.replace('/login')
-      return
+    const initPerfil = async () => {
+      if (!getToken()) {
+        router.replace('/login')
+        return
+      }
+      await carregarPerfil()
     }
-    carregarPerfil()
+    initPerfil()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -64,6 +67,7 @@ export default function HomePage() {
 
   async function handleResolver(r: Resultado) {
     if (!cagada) return
+    setErro('')
     setLoading(true)
     const res = await resolverCagada(cagada.cagadaId, r)
     setLoading(false)

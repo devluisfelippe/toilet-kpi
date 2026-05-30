@@ -10,7 +10,6 @@ export const PCL_POR_NIVEL: Record<
   insano: { cumprida: 70, falhou: -20 },
 };
 
-// Ordenado do maior limiar para o menor (find pega o primeiro que bate).
 export const PATENTES: ReadonlyArray<{ min: number; nome: string }> = [
   { min: 6000, nome: 'Lenda Iluminada do Papel Zero' },
   { min: 3000, nome: 'CEO do Banheiro Sustentável' },
@@ -31,7 +30,7 @@ export function aplicarPcl(atual: number, delta: number): number {
 }
 
 export function patenteDe(pcl: number): string {
-  return PATENTES.find((p) => pcl >= p.min)!.nome;
+  return PATENTES.find((patente) => pcl >= patente.min)!.nome;
 }
 
 export function pontosEmJogo(nivel: Nivel): number {

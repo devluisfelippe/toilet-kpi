@@ -4,13 +4,13 @@ import { FriendsRepository } from './friends.repository';
 import { UsersService } from '../users/users.service';
 
 interface Mocks {
-  repo: { addMutual: jest.Mock; listFriends: jest.Mock };
+  repository: { addMutual: jest.Mock; listFriends: jest.Mock };
   users: { findUser: jest.Mock; getScore: jest.Mock };
 }
 
-function deps(over: Partial<Mocks> = {}): Mocks {
+function deps(overrides: Partial<Mocks> = {}): Mocks {
   return {
-    repo: {
+    repository: {
       addMutual: jest.fn().mockResolvedValue(undefined),
       listFriends: jest.fn().mockResolvedValue([]),
     },
@@ -18,63 +18,69 @@ function deps(over: Partial<Mocks> = {}): Mocks {
       findUser: jest.fn().mockResolvedValue({ nickname: 'amigo' }),
       getScore: jest.fn(),
     },
-    ...over,
+    ...overrides,
   };
 }
 
-function makeService(d: Mocks): FriendsService {
+function makeService(mocks: Mocks): FriendsService {
   return new FriendsService(
-    d.repo as unknown as FriendsRepository,
-    d.users as unknown as UsersService,
+    mocks.repository as unknown as FriendsRepository,
+    mocks.users as unknown as UsersService,
   );
 }
 
 describe('FriendsService', () => {
   it('não deixa adicionar a si mesmo', async () => {
-    const d = deps();
-    const svc = makeService(d);
-    await expect(svc.add('zeca', 'zeca')).rejects.toBeInstanceOf(
+    const mocks = deps();
+    const service = makeService(mocks);
+    await expect(service.add('zeca', 'zeca')).rejects.toBeInstanceOf(
       BadRequestException,
     );
   });
 
   it('404 quando o amigo não existe', async () => {
-    const d = deps({
+    const mocks = deps({
       users: {
         findUser: jest.fn().mockResolvedValue(null),
         getScore: jest.fn(),
       },
     });
-    const svc = makeService(d);
-    await expect(svc.add('zeca', 'fantasma')).rejects.toBeInstanceOf(
+    const service = makeService(mocks);
+    await expect(service.add('zeca', 'fantasma')).rejects.toBeInstanceOf(
       NotFoundException,
     );
   });
 
   it('adiciona amizade mútua', async () => {
-    const d = deps();
-    const svc = makeService(d);
-    await svc.add('zeca', 'amigo');
-    expect(d.repo.addMutual).toHaveBeenCalledWith('zeca', 'amigo');
+    const mocks = deps();
+    const service = makeService(mocks);
+    await service.add('zeca', 'amigo');
+    expect(mocks.repository.addMutual).toHaveBeenCalledWith('zeca', 'amigo');
   });
 
   it('monta o ranking ordenado por PCL com títulos', async () => {
     const scores: Record<string, number> = { zeca: 50, ana: 300, bia: 0 };
-    const d = deps({
-      repo: {
+    const mocks = deps({
+      repository: {
         addMutual: jest.fn(),
         listFriends: jest.fn().mockResolvedValue(['ana', 'bia']),
       },
       users: {
         findUser: jest.fn(),
-        getScore: jest.fn((n: string) => Promise.resolve(scores[n])),
+        getScore: jest.fn((nickname: string) =>
+          Promise.resolve(scores[nickname]),
+        ),
       },
     });
-    const svc = makeService(d);
-    const ranking = await svc.ranking('zeca');
-    expect(ranking.map((r) => r.nickname)).toEqual(['ana', 'zeca', 'bia']);
+    const service = makeService(mocks);
+    const ranking = await service.ranking('zeca');
+    expect(ranking.map((item) => item.nickname)).toEqual([
+      'ana',
+      'zeca',
+      'bia',
+    ]);
     expect(ranking[0].titulo).toBe('Soberano do Trono');
     expect(ranking[ranking.length - 1].titulo).toBe('Lanterna da Latrina');
-    expect(ranking[1].patente).toBe('Estagiário do Vaso'); // zeca, 50 PCL
+    expect(ranking[1].patente).toBe('Estagiário do Vaso');
   });
 });

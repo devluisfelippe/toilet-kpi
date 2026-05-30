@@ -10,26 +10,26 @@ export interface PerfilResumo {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly repo: UsersRepository) {}
+  constructor(private readonly repository: UsersRepository) {}
 
   findUser(nickname: string): Promise<UserRow | null> {
-    return this.repo.findUser(nickname);
+    return this.repository.findUser(nickname);
   }
 
   createUser(nickname: string, passwordHash: string): Promise<void> {
-    return this.repo.insertUser(nickname, passwordHash);
+    return this.repository.insertUser(nickname, passwordHash);
   }
 
   getScore(nickname: string): Promise<number> {
-    return this.repo.getScore(nickname);
+    return this.repository.getScore(nickname);
   }
 
   setScore(nickname: string, pcl: number): Promise<void> {
-    return this.repo.setScore(nickname, pcl);
+    return this.repository.setScore(nickname, pcl);
   }
 
   async perfil(nickname: string): Promise<PerfilResumo> {
-    const pcl = await this.repo.getScore(nickname);
+    const pcl = await this.repository.getScore(nickname);
     return { nickname, pcl, patente: patenteDe(pcl) };
   }
 }

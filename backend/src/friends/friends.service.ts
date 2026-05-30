@@ -17,7 +17,7 @@ export interface RankingItem {
 @Injectable()
 export class FriendsService {
   constructor(
-    private readonly repo: FriendsRepository,
+    private readonly repository: FriendsRepository,
     private readonly users: UsersService,
   ) {}
 
@@ -29,15 +29,15 @@ export class FriendsService {
     }
     const exists = await this.users.findUser(friend);
     if (!exists) throw new NotFoundException('Esse nickname não existe.');
-    await this.repo.addMutual(me, friend);
+    await this.repository.addMutual(me, friend);
     return { ok: true };
   }
 
   async ranking(me: string): Promise<RankingItem[]> {
-    const friends = await this.repo.listFriends(me);
-    const nicks = [me, ...friends];
-    const itens = await Promise.all(
-      nicks.map(async (nickname) => {
+    const friends = await this.repository.listFriends(me);
+    const nicknames = [me, ...friends];
+    const rankingItems = await Promise.all(
+      nicknames.map(async (nickname) => {
         const pcl = await this.users.getScore(nickname);
         return {
           nickname,
@@ -47,12 +47,12 @@ export class FriendsService {
         };
       }),
     );
-    itens.sort((a, b) => b.pcl - a.pcl);
-    if (itens.length > 0) {
-      itens[0].titulo = 'Soberano do Trono';
-      if (itens.length > 1)
-        itens[itens.length - 1].titulo = 'Lanterna da Latrina';
+    rankingItems.sort((a, b) => b.pcl - a.pcl);
+    if (rankingItems.length > 0) {
+      rankingItems[0].titulo = 'Soberano do Trono';
+      if (rankingItems.length > 1)
+        rankingItems[rankingItems.length - 1].titulo = 'Lanterna da Latrina';
     }
-    return itens;
+    return rankingItems;
   }
 }

@@ -13,16 +13,16 @@ export class UsersController {
   ) {}
 
   @Get()
-  async me(@Req() req: Request & { user: string }) {
-    const perfil = await this.users.perfil(req.user);
-    const recentes = await this.cagadas.recent(req.user, 10);
-    const historicoRecente = recentes.map((c) => ({
-      cagadaId: c.cagada_id,
-      level: c.level,
-      missao: c.mission_text,
-      status: c.status,
-      pclDelta: c.pcl_delta,
-      quando: c.created_at,
+  async me(@Req() request: Request & { user: string }) {
+    const perfil = await this.users.perfil(request.user);
+    const cagadasRecentes = await this.cagadas.recent(request.user, 10);
+    const historicoRecente = cagadasRecentes.map((cagada) => ({
+      cagadaId: cagada.cagada_id,
+      level: cagada.level,
+      missao: cagada.mission_text,
+      status: cagada.status,
+      pclDelta: cagada.pcl_delta,
+      quando: cagada.created_at,
     }));
     return { ...perfil, historicoRecente };
   }

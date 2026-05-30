@@ -12,7 +12,7 @@ const missao = {
 
 interface Mocks {
   missions: { sortear: jest.Mock; byId: jest.Mock };
-  repo: {
+  repository: {
     insertPending: jest.Mock;
     findById: jest.Mock;
     resolve: jest.Mock;
@@ -21,10 +21,10 @@ interface Mocks {
   users: { getScore: jest.Mock; setScore: jest.Mock };
 }
 
-function deps(over: Partial<Mocks> = {}): Mocks {
+function deps(overrides: Partial<Mocks> = {}): Mocks {
   return {
     missions: { sortear: jest.fn().mockReturnValue(missao), byId: jest.fn() },
-    repo: {
+    repository: {
       insertPending: jest.fn().mockResolvedValue('uuid-1'),
       findById: jest.fn(),
       resolve: jest.fn().mockResolvedValue(undefined),
@@ -34,25 +34,25 @@ function deps(over: Partial<Mocks> = {}): Mocks {
       getScore: jest.fn().mockResolvedValue(100),
       setScore: jest.fn().mockResolvedValue(undefined),
     },
-    ...over,
+    ...overrides,
   };
 }
 
-function makeService(d: Mocks): CagadasService {
+function makeService(mocks: Mocks): CagadasService {
   return new CagadasService(
-    d.missions as unknown as MissionsService,
-    d.repo as unknown as CagadasRepository,
-    d.users as unknown as UsersService,
+    mocks.missions as unknown as MissionsService,
+    mocks.repository as unknown as CagadasRepository,
+    mocks.users as unknown as UsersService,
   );
 }
 
 describe('CagadasService', () => {
   it('registra cagada sorteando missão e devolve pontos em jogo', async () => {
-    const d = deps();
-    const svc = makeService(d);
-    const out = await svc.registrar('zeca');
-    expect(d.repo.insertPending).toHaveBeenCalledWith('zeca', missao);
-    expect(out).toEqual({
+    const mocks = deps();
+    const service = makeService(mocks);
+    const resposta = await service.registrar('zeca');
+    expect(mocks.repository.insertPending).toHaveBeenCalledWith('zeca', missao);
+    expect(resposta).toEqual({
       cagadaId: 'uuid-1',
       mission: { id: 'insano-rio', level: 'insano', text: 'Lave-se no rio.' },
       pontosEmJogo: 70,
@@ -60,8 +60,8 @@ describe('CagadasService', () => {
   });
 
   it('resolve com cumprida somando pontos', async () => {
-    const d = deps({
-      repo: {
+    const mocks = deps({
+      repository: {
         findById: jest
           .fn()
           .mockResolvedValue({ status: 'pendente', level: 'insano' }),
@@ -70,18 +70,18 @@ describe('CagadasService', () => {
         recent: jest.fn(),
       },
     });
-    const svc = makeService(d);
-    const out = await svc.resolver('zeca', 'uuid-1', 'cumprida');
-    expect(out.pclDelta).toBe(70);
-    expect(out.totalPcl).toBe(170);
-    expect(out.patente).toBe('Office-boy da Privada');
-    expect(d.users.setScore).toHaveBeenCalledWith('zeca', 170);
+    const service = makeService(mocks);
+    const resposta = await service.resolver('zeca', 'uuid-1', 'cumprida');
+    expect(resposta.pclDelta).toBe(70);
+    expect(resposta.totalPcl).toBe(170);
+    expect(resposta.patente).toBe('Office-boy da Privada');
+    expect(mocks.users.setScore).toHaveBeenCalledWith('zeca', 170);
   });
 
   it('aplica piso em zero ao falhar', async () => {
-    const d = deps({
+    const mocks = deps({
       users: { getScore: jest.fn().mockResolvedValue(10), setScore: jest.fn() },
-      repo: {
+      repository: {
         findById: jest
           .fn()
           .mockResolvedValue({ status: 'pendente', level: 'insano' }),
@@ -90,30 +90,30 @@ describe('CagadasService', () => {
         recent: jest.fn(),
       },
     });
-    const svc = makeService(d);
-    const out = await svc.resolver('zeca', 'uuid-1', 'falhou');
-    expect(out.totalPcl).toBe(0); // 10 - 20 -> piso 0
-    expect(out.pclDelta).toBe(-10); // delta aplicado real (0 - 10)
+    const service = makeService(mocks);
+    const resposta = await service.resolver('zeca', 'uuid-1', 'falhou');
+    expect(resposta.totalPcl).toBe(0);
+    expect(resposta.pclDelta).toBe(-10);
   });
 
   it('404 quando a cagada não existe', async () => {
-    const d = deps({
-      repo: {
+    const mocks = deps({
+      repository: {
         findById: jest.fn().mockResolvedValue(null),
         insertPending: jest.fn(),
         resolve: jest.fn(),
         recent: jest.fn(),
       },
     });
-    const svc = makeService(d);
-    await expect(svc.resolver('zeca', 'x', 'cumprida')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
+    const service = makeService(mocks);
+    await expect(
+      service.resolver('zeca', 'x', 'cumprida'),
+    ).rejects.toBeInstanceOf(NotFoundException);
   });
 
   it('409 quando já resolvida', async () => {
-    const d = deps({
-      repo: {
+    const mocks = deps({
+      repository: {
         findById: jest
           .fn()
           .mockResolvedValue({ status: 'cumprida', level: 'leve' }),
@@ -122,9 +122,9 @@ describe('CagadasService', () => {
         recent: jest.fn(),
       },
     });
-    const svc = makeService(d);
-    await expect(svc.resolver('zeca', 'x', 'cumprida')).rejects.toBeInstanceOf(
-      ConflictException,
-    );
+    const service = makeService(mocks);
+    await expect(
+      service.resolver('zeca', 'x', 'cumprida'),
+    ).rejects.toBeInstanceOf(ConflictException);
   });
 });

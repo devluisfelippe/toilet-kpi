@@ -10,16 +10,16 @@ export class CagadasController {
   constructor(private readonly cagadas: CagadasService) {}
 
   @Post()
-  registrar(@Req() req: Request & { user: string }) {
-    return this.cagadas.registrar(req.user);
+  registrar(@Req() request: Request & { user: string }) {
+    return this.cagadas.registrar(request.user);
   }
 
   @Post(':id/resolver')
   resolver(
-    @Req() req: Request & { user: string },
-    @Param('id') id: string,
-    @Body() dto: ResolverDto,
+    @Req() request: Request & { user: string },
+    @Param('id') cagadaId: string,
+    @Body() resolverDto: ResolverDto,
   ) {
-    return this.cagadas.resolver(req.user, id, dto.resultado);
+    return this.cagadas.resolver(request.user, cagadaId, resolverDto.resultado);
   }
 }

@@ -21,7 +21,7 @@ describe('scoring', () => {
 
   it('aplica o delta com piso em zero', () => {
     expect(aplicarPcl(100, 30)).toBe(130);
-    expect(aplicarPcl(10, -20)).toBe(0); // não fica negativo
+    expect(aplicarPcl(10, -20)).toBe(0);
   });
 
   it('deriva a patente a partir do total', () => {
@@ -37,7 +37,7 @@ describe('scoring', () => {
   });
 
   it('Nivel é usável como tipo', () => {
-    const n: Nivel = 'leve';
-    expect(n).toBe('leve');
+    const nivel: Nivel = 'leve';
+    expect(nivel).toBe('leve');
   });
 });

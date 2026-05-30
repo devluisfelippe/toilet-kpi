@@ -15,12 +15,15 @@ export class FriendsController {
   constructor(private readonly friends: FriendsService) {}
 
   @Post()
-  add(@Req() req: Request & { user: string }, @Body() dto: AddFriendDto) {
-    return this.friends.add(req.user, dto.nickname);
+  add(
+    @Req() request: Request & { user: string },
+    @Body() addFriendDto: AddFriendDto,
+  ) {
+    return this.friends.add(request.user, addFriendDto.nickname);
   }
 
   @Get('ranking')
-  ranking(@Req() req: Request & { user: string }) {
-    return this.friends.ranking(req.user);
+  ranking(@Req() request: Request & { user: string }) {
+    return this.friends.ranking(request.user);
   }
 }

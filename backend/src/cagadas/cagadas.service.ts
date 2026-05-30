@@ -25,13 +25,13 @@ const MENSAGENS: Record<Resultado, string> = {
 export class CagadasService {
   constructor(
     private readonly missions: MissionsService,
-    private readonly repo: CagadasRepository,
+    private readonly repository: CagadasRepository,
     private readonly users: UsersService,
   ) {}
 
   async registrar(nickname: string) {
     const missao = this.missions.sortear();
-    const cagadaId = await this.repo.insertPending(nickname, missao);
+    const cagadaId = await this.repository.insertPending(nickname, missao);
     return {
       cagadaId,
       mission: { id: missao.id, level: missao.level, text: missao.text },
@@ -40,23 +40,26 @@ export class CagadasService {
   }
 
   async resolver(nickname: string, cagadaId: string, resultado: Resultado) {
-    const cagada = await this.repo.findById(nickname, cagadaId);
+    const cagada = await this.repository.findById(nickname, cagadaId);
     if (!cagada)
       throw new NotFoundException('Essa cagada não existe (ou não é sua).');
     if (cagada.status !== 'pendente')
       throw new ConflictException('Essa cagada já foi resolvida.');
 
-    const atual = await this.users.getScore(nickname);
-    const novo = aplicarPcl(atual, pclDelta(cagada.level as Nivel, resultado));
-    const deltaAplicado = novo - atual;
+    const pclAtual = await this.users.getScore(nickname);
+    const pclNovo = aplicarPcl(
+      pclAtual,
+      pclDelta(cagada.level as Nivel, resultado),
+    );
+    const deltaAplicado = pclNovo - pclAtual;
 
-    await this.users.setScore(nickname, novo);
-    await this.repo.resolve(nickname, cagadaId, resultado, deltaAplicado);
+    await this.users.setScore(nickname, pclNovo);
+    await this.repository.resolve(nickname, cagadaId, resultado, deltaAplicado);
 
     return {
       pclDelta: deltaAplicado,
-      totalPcl: novo,
-      patente: patenteDe(novo),
+      totalPcl: pclNovo,
+      patente: patenteDe(pclNovo),
       mensagem: MENSAGENS[resultado],
     };
   }

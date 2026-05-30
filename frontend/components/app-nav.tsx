@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Users } from 'lucide-react'
+import { Home, User, Users } from 'lucide-react'
 import { cn } from '@/utils/cn'
 
 const NAV_ITEMS = [
   { href: '/home', label: 'Home', icon: Home, shortLabel: 'H' },
   { href: '/social', label: 'Social', icon: Users, shortLabel: 'S' },
+  { href: '/perfil', label: 'Perfil', icon: User, shortLabel: 'P' },
 ] as const
 
 export function AppNav() {

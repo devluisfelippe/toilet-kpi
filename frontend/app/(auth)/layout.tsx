@@ -6,7 +6,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <span className="text-5xl">🧻</span>
-          <h1 className="mt-3 text-2xl font-bold tracking-tight">Toilet KPI</h1>
+          <h1 className="mt-3 text-2xl font-bold tracking-tight">Campeões do Tolete</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             O trono é para os fortes. Prove seu valor.
           </p>

@@ -18,13 +18,13 @@ export class AuthService {
     nickname: string,
     senha: string,
   ): Promise<{ token: string; nickname: string }> {
-    const existing = await this.users.findUser(nickname);
-    if (existing)
+    const existingUser = await this.users.findUser(nickname);
+    if (existingUser)
       throw new ConflictException(
         'Esse trono já tem dono. Escolha outro nickname.',
       );
-    const hash = await bcrypt.hash(senha, 10);
-    await this.users.createUser(nickname, hash);
+    const passwordHash = await bcrypt.hash(senha, 10);
+    await this.users.createUser(nickname, passwordHash);
     return { token: await this.sign(nickname), nickname };
   }
 
@@ -34,8 +34,9 @@ export class AuthService {
   ): Promise<{ token: string; nickname: string }> {
     const user = await this.users.findUser(nickname);
     if (!user) throw new UnauthorizedException('Credenciais inválidas.');
-    const ok = await bcrypt.compare(senha, user.password_hash);
-    if (!ok) throw new UnauthorizedException('Credenciais inválidas.');
+    const senhaConfere = await bcrypt.compare(senha, user.password_hash);
+    if (!senhaConfere)
+      throw new UnauthorizedException('Credenciais inválidas.');
     return { token: await this.sign(nickname), nickname };
   }
 

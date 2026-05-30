@@ -12,18 +12,23 @@ import { MISSOES } from '../missions/missions.catalog';
 export class CassandraService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(CassandraService.name);
   private client!: Client;
-  private readonly cfg = loadConfig().cassandra;
+  private readonly config = loadConfig().cassandra;
 
   async onModuleInit(): Promise<void> {
     const retries = 20;
     const delayMs = 3000;
+    this.logger.log(
+      `Iniciando conexão com Cassandra em: ${this.config.contactPoints.join(
+        ',',
+      )} (DC: ${this.config.localDataCenter})`,
+    );
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
         await this.bootstrap();
         this.logger.log('Cassandra pronto.');
         return;
-      } catch (err) {
-        if (attempt === retries) throw err;
+      } catch (error) {
+        if (attempt === retries) throw error;
         this.logger.warn(
           `Cassandra indisponível (tentativa ${attempt}/${retries}). ` +
             `Retentando em ${delayMs}ms...`,
@@ -34,24 +39,24 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async bootstrap(): Promise<void> {
-    const bootstrap = new Client({
-      contactPoints: this.cfg.contactPoints,
-      localDataCenter: this.cfg.localDataCenter,
+    const bootstrapClient = new Client({
+      contactPoints: this.config.contactPoints,
+      localDataCenter: this.config.localDataCenter,
     });
     try {
-      await bootstrap.connect();
-      await bootstrap.execute(
-        `CREATE KEYSPACE IF NOT EXISTS ${this.cfg.keyspace} ` +
+      await bootstrapClient.connect();
+      await bootstrapClient.execute(
+        `CREATE KEYSPACE IF NOT EXISTS ${this.config.keyspace} ` +
           `WITH replication = {'class':'SimpleStrategy','replication_factor':1}`,
       );
     } finally {
-      await bootstrap.shutdown();
+      await bootstrapClient.shutdown();
     }
 
     this.client = new Client({
-      contactPoints: this.cfg.contactPoints,
-      localDataCenter: this.cfg.localDataCenter,
-      keyspace: this.cfg.keyspace,
+      contactPoints: this.config.contactPoints,
+      localDataCenter: this.config.localDataCenter,
+      keyspace: this.config.keyspace,
     });
     await this.client.connect();
     await this.createTables();
@@ -67,7 +72,7 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async createTables(): Promise<void> {
-    const ddl = [
+    const createTableStatements = [
       `CREATE TABLE IF NOT EXISTS users_by_nick (
          nickname text PRIMARY KEY, password_hash text, created_at timestamp)`,
       `CREATE TABLE IF NOT EXISTS score_by_nick (
@@ -84,14 +89,15 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
          owner_nick text, friend_nick text, created_at timestamp,
          PRIMARY KEY (owner_nick, friend_nick))`,
     ];
-    for (const stmt of ddl) await this.client.execute(stmt);
+    for (const statement of createTableStatements)
+      await this.client.execute(statement);
   }
 
   private async seedMissions(): Promise<void> {
-    for (const m of MISSOES) {
+    for (const missao of MISSOES) {
       await this.client.execute(
         `INSERT INTO missions (mission_id, level, text) VALUES (?, ?, ?)`,
-        [m.id, m.level, m.text],
+        [missao.id, missao.level, missao.text],
         { prepare: true },
       );
     }

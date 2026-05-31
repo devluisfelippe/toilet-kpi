@@ -10,7 +10,7 @@ export class LoginDto {
   nickname: string;
 
   @ApiProperty({
-    description: 'Se tem que colocar a senha também (não é golpe, confia)',
+    description: 'Cê tem que colocar a senha também (não é golpe, confia)',
   })
   @IsString()
   password: string;

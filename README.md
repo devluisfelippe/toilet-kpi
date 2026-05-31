@@ -87,6 +87,29 @@ A partir de `backend/`, `docker compose up -d --build` sobe **Cassandra e backen
 `CASSANDRA_CONTACT_POINTS=127.0.0.1` por `CASSANDRA_CONTACT_POINTS=cassandra`
 (nome do serviço na rede do Compose). O frontend continua rodando no host.
 
+## Seed (dados de teste)
+
+Com o backend rodando, popule o banco com 3 usuários de teste que já são amigos e possuem cagadas registradas:
+
+```bash
+cd backend
+yarn seed
+```
+
+> Pré-requisito: o backend precisa estar no ar (`docker compose up -d cassandra` + `yarn start:dev`, ou `docker compose up -d --build`).
+
+Se um usuário já existir, o script faz login automaticamente e continua sem interromper a execução.
+
+### Credenciais
+
+| Usuário | Senha    |
+| ------- | -------- |
+| joao    | senha123 |
+| maria   | senha123 |
+| carlos  | senha123 |
+
+Os três são amigos entre si e cada um tem 4 cagadas resolvidas com resultados `cumprida`, `falhou`, `pulou`, `cumprida`.
+
 ## Variáveis de ambiente
 
 ### Backend (`backend/.env`)

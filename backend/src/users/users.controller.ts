@@ -1,9 +1,12 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CagadasRepository } from '../cagadas/cagadas.repository';
 
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('me')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
@@ -13,6 +16,7 @@ export class UsersController {
   ) {}
 
   @Get()
+  @ApiOperation({ summary: 'Get current user profile and recent missions' })
   async me(@Req() request: Request & { user: string }) {
     const perfil = await this.users.perfil(request.user);
     const cagadasRecentes = await this.cagadas.recent(request.user, 10);

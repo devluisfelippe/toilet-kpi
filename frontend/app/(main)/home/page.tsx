@@ -17,75 +17,105 @@ import type {
   UserProfile,
 } from '@/services/types'
 
-function nivelVariant(nivel: string): 'destructive' | 'default' | 'secondary' {
-  if (nivel === 'insano') return 'destructive'
-  if (nivel === 'medio') return 'default'
+const PENDING_KEY = 'toilet_kpi_pending_cagada'
+
+function savePending(c: CagadaRegistrada) {
+  localStorage.setItem(PENDING_KEY, JSON.stringify(c))
+}
+
+function loadPending(): CagadaRegistrada | null {
+  try {
+    const raw = localStorage.getItem(PENDING_KEY)
+    return raw ? (JSON.parse(raw) as CagadaRegistrada) : null
+  } catch {
+    return null
+  }
+}
+
+function clearPending() {
+  localStorage.removeItem(PENDING_KEY)
+}
+
+function levelVariant(level: string): 'destructive' | 'default' | 'secondary' {
+  if (level === 'insano') return 'destructive'
+  if (level === 'medio') return 'default'
   return 'secondary'
 }
 
 export default function HomePage() {
   const router = useRouter()
-  const [perfil, setPerfil] = useState<UserProfile | null>(null)
-  const [cagada, setCagada] = useState<CagadaRegistrada | null>(null)
-  const [resultado, setResultado] = useState<ResolveResult | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [activeMission, setActiveMission] = useState<CagadaRegistrada | null>(null)
+  // false = pending mission restored (shows compact row); true = user is resolving (shows buttons)
+  const [resolving, setResolving] = useState(false)
+  const [result, setResult] = useState<ResolveResult | null>(null)
   const [loading, setLoading] = useState(false)
-  const [erro, setErro] = useState('')
+  const [error, setError] = useState('')
 
-  async function carregarPerfil() {
+  async function loadProfile() {
     const res = await getMe()
     if (res.error) {
-      setErro(res.error)
+      setError(res.error)
       return
     }
-    setPerfil(res.data)
+    setProfile(res.data)
   }
 
   useEffect(() => {
-    const initPerfil = async () => {
+    const init = async () => {
       if (!getToken()) {
         router.replace('/login')
         return
       }
-      await carregarPerfil()
+      await loadProfile()
+      const pending = loadPending()
+      if (pending) {
+        setActiveMission(pending)
+        setResolving(false)
+      }
     }
-    initPerfil()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    init()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function handleRegistrar() {
-    setErro('')
-    setResultado(null)
+  async function handleRegister() {
+    setError('')
+    setResult(null)
     setLoading(true)
     const res = await registrarCagada()
     setLoading(false)
     if (res.error) {
-      setErro(res.error)
+      setError(res.error)
       return
     }
-    setCagada(res.data)
+    savePending(res.data)
+    setActiveMission(res.data)
+    setResolving(true)
   }
 
-  async function handleResolver(r: Resultado) {
-    if (!cagada) return
-    setErro('')
+  async function handleResolve(outcome: Resultado) {
+    if (!activeMission) return
+    setError('')
     setLoading(true)
-    const res = await resolverCagada(cagada.cagadaId, r)
+    const res = await resolverCagada(activeMission.cagadaId, outcome)
     setLoading(false)
     if (res.error) {
-      setErro(res.error)
+      setError(res.error)
       return
     }
-    setResultado(res.data)
-    setCagada(null)
-    await carregarPerfil()
+    clearPending()
+    setActiveMission(null)
+    setResolving(false)
+    setResult(res.data)
+    await loadProfile()
   }
 
-  function handleSair() {
+  function handleSignOut() {
     clearToken()
     router.replace('/login')
   }
 
-  if (!perfil) {
+  if (!profile) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-sm text-muted-foreground">Carregando o trono…</p>
@@ -99,18 +129,18 @@ export default function HomePage() {
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {perfil.nickname}
+            {profile.nickname}
           </p>
-          <p className="mt-0.5 text-sm font-medium">{perfil.patente}</p>
+          <p className="mt-0.5 text-sm font-medium">{profile.patente}</p>
           <p className="text-2xl font-bold tabular-nums">
-            {perfil.pcl}{' '}
+            {profile.pcl}{' '}
             <span className="text-sm font-normal text-muted-foreground">PCL</span>
           </p>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleSair}
+          onClick={handleSignOut}
           className="text-muted-foreground"
         >
           sair
@@ -119,74 +149,31 @@ export default function HomePage() {
 
       {/* Cagada flow */}
       <section className="flex flex-col items-center gap-4 py-4">
-        {!cagada && !resultado && (
+        {!activeMission && !result && (
           <Button
             size="lg"
             className="h-20 w-full max-w-xs text-xl"
-            onClick={handleRegistrar}
+            onClick={handleRegister}
             disabled={loading}
           >
             {loading ? 'Sorteando missão…' : '💩 Registrar cagada'}
           </Button>
         )}
 
-        {cagada && (
-          <Card className="w-full max-w-sm border-dashed">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <Badge variant={nivelVariant(cagada.mission.level)}>
-                  {cagada.mission.level}
-                </Badge>
-                <span className="text-xs text-muted-foreground">
-                  vale {cagada.pontosEmJogo} PCL
-                </span>
-              </div>
-              <CardTitle className="text-base leading-snug">
-                {cagada.mission.text}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex gap-2">
-              <Button
-                className="flex-1"
-                onClick={() => handleResolver('cumprida')}
-                disabled={loading}
-              >
-                ✅ Cumpri
-              </Button>
-              <Button
-                variant="secondary"
-                className="flex-1"
-                onClick={() => handleResolver('pulou')}
-                disabled={loading}
-              >
-                🐔 Pulei
-              </Button>
-              <Button
-                variant="destructive"
-                className="flex-1"
-                onClick={() => handleResolver('falhou')}
-                disabled={loading}
-              >
-                🧻 Falhei
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {resultado && (
+        {result && (
           <Card className="w-full max-w-sm">
             <CardContent className="flex flex-col items-center gap-2 pt-6 text-center">
-              <p className="text-lg font-semibold">{resultado.mensagem}</p>
+              <p className="text-lg font-semibold">{result.mensagem}</p>
               <p className="text-3xl font-bold tabular-nums">
-                {resultado.pclDelta >= 0 ? '+' : ''}
-                {resultado.pclDelta} PCL
+                {result.pclDelta >= 0 ? '+' : ''}
+                {result.pclDelta} PCL
               </p>
               <p className="text-sm text-muted-foreground">
-                Total: {resultado.totalPcl} · {resultado.patente}
+                Total: {result.totalPcl} · {result.patente}
               </p>
               <Button
                 className="mt-2 w-full"
-                onClick={handleRegistrar}
+                onClick={handleRegister}
                 disabled={loading}
               >
                 💩 Nova cagada
@@ -196,18 +183,70 @@ export default function HomePage() {
         )}
       </section>
 
-      {erro && (
-        <p className="text-center text-sm text-destructive">{erro}</p>
+      {error && (
+        <p className="text-center text-sm text-destructive">{error}</p>
       )}
 
-      {/* Recent history */}
-      {perfil.historicoRecente.length > 0 && (
+      {/* History + pending mission */}
+      {(activeMission || profile.historicoRecente.length > 0) && (
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Histórico recente
           </h2>
           <div className="flex flex-col gap-2">
-            {perfil.historicoRecente.map((h) => (
+            {/* Pending mission as first item */}
+            {activeMission && (
+              <div className="rounded-lg border border-amber-300 bg-amber-50">
+                <button
+                  className="flex w-full items-center justify-between px-3 py-2 text-left"
+                  onClick={() => setResolving((v) => !v)}
+                >
+                  <span className="max-w-[55%] truncate text-sm font-medium text-amber-800">
+                    {activeMission.mission.text}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Badge className="bg-amber-400 text-xs text-amber-900 hover:bg-amber-400">
+                      pendente
+                    </Badge>
+                    <span className="text-xs text-amber-600">
+                      {resolving ? '▲' : '▼'}
+                    </span>
+                  </div>
+                </button>
+                {resolving && (
+                  <div className="flex gap-2 border-t border-amber-200 px-3 py-2">
+                    <Button
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => handleResolve('cumprida')}
+                      disabled={loading}
+                    >
+                      ✅ Cumpri
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="flex-1"
+                      onClick={() => handleResolve('pulou')}
+                      disabled={loading}
+                    >
+                      🐔 Pulei
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => handleResolve('falhou')}
+                      disabled={loading}
+                    >
+                      🧻 Falhei
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {profile.historicoRecente.map((h) => (
               <div
                 key={h.cagadaId}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"

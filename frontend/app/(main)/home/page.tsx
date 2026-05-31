@@ -36,11 +36,6 @@ function clearPending() {
   localStorage.removeItem(PENDING_KEY)
 }
 
-function levelVariant(level: string): 'destructive' | 'default' | 'secondary' {
-  if (level === 'insano') return 'destructive'
-  if (level === 'medio') return 'default'
-  return 'secondary'
-}
 
 export default function HomePage() {
   const router = useRouter()

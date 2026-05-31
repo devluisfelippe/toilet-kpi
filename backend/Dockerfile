@@ -33,6 +33,5 @@ ENV NODE_ENV=production
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --production && yarn cache clean
 COPY --from=build /app/dist ./dist
-COPY .env ./.env
 EXPOSE 3001
 CMD ["node", "dist/main"]

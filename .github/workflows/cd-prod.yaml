@@ -31,6 +31,6 @@ jobs:
             docker tag toilet-kpi-backend:new toilet-kpi-backend:latest
                     
             docker run -d \
-              --name toilet-kpi-backend \
-              -p 3001:3001 \
+              --env-file .env \
+              --network host -p 3001:3001 \
               toilet-kpi-backend:latest

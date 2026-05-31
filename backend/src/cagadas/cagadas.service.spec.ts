@@ -4,14 +4,14 @@ import { MissionsService } from '../missions/missions.service';
 import { CagadasRepository } from './cagadas.repository';
 import { UsersService } from '../users/users.service';
 
-const missao = {
+const mission = {
   id: 'insano-rio',
   level: 'insano' as const,
   text: 'Lave-se no rio.',
 };
 
 interface Mocks {
-  missions: { sortear: jest.Mock; byId: jest.Mock };
+  missions: { sort: jest.Mock; byId: jest.Mock };
   repository: {
     insertPending: jest.Mock;
     findById: jest.Mock;
@@ -23,7 +23,7 @@ interface Mocks {
 
 function deps(overrides: Partial<Mocks> = {}): Mocks {
   return {
-    missions: { sortear: jest.fn().mockReturnValue(missao), byId: jest.fn() },
+    missions: { sort: jest.fn().mockReturnValue(mission), byId: jest.fn() },
     repository: {
       insertPending: jest.fn().mockResolvedValue('uuid-1'),
       findById: jest.fn(),
@@ -50,12 +50,15 @@ describe('CagadasService', () => {
   it('registra cagada sorteando missão e devolve pontos em jogo', async () => {
     const mocks = deps();
     const service = makeService(mocks);
-    const resposta = await service.registrar('zeca');
-    expect(mocks.repository.insertPending).toHaveBeenCalledWith('zeca', missao);
-    expect(resposta).toEqual({
+    const response = await service.register('zeca');
+    expect(mocks.repository.insertPending).toHaveBeenCalledWith(
+      'zeca',
+      mission,
+    );
+    expect(response).toEqual({
       cagadaId: 'uuid-1',
       mission: { id: 'insano-rio', level: 'insano', text: 'Lave-se no rio.' },
-      pontosEmJogo: 70,
+      pointsInGame: 70,
     });
   });
 
@@ -71,10 +74,10 @@ describe('CagadasService', () => {
       },
     });
     const service = makeService(mocks);
-    const resposta = await service.resolver('zeca', 'uuid-1', 'cumprida');
-    expect(resposta.pclDelta).toBe(70);
-    expect(resposta.totalPcl).toBe(170);
-    expect(resposta.patente).toBe('Office-boy da Privada');
+    const response = await service.resolver('zeca', 'uuid-1', 'cumprida');
+    expect(response.pclDelta).toBe(70);
+    expect(response.totalPcl).toBe(170);
+    expect(response.patent).toBe('Office-boy da Privada');
     expect(mocks.users.setScore).toHaveBeenCalledWith('zeca', 170);
   });
 
@@ -91,9 +94,9 @@ describe('CagadasService', () => {
       },
     });
     const service = makeService(mocks);
-    const resposta = await service.resolver('zeca', 'uuid-1', 'falhou');
-    expect(resposta.totalPcl).toBe(0);
-    expect(resposta.pclDelta).toBe(-10);
+    const response = await service.resolver('zeca', 'uuid-1', 'falhou');
+    expect(response.totalPcl).toBe(0);
+    expect(response.pclDelta).toBe(-10);
   });
 
   it('404 quando a cagada não existe', async () => {

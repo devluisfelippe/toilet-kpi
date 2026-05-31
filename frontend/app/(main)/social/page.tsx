@@ -1,52 +1,52 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { getRanking, addFriend } from '@/services/ranking.service'
-import { getToken } from '@/lib/api'
-import type { RankingEntry } from '@/services/types'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { getRanking, addFriend } from "@/services/ranking.service";
+import { getToken } from "@/lib/api";
+import type { RankingEntry } from "@/services/types";
 
 export default function SocialPage() {
-  const router = useRouter()
-  const [ranking, setRanking] = useState<RankingEntry[]>([])
-  const [friendNickname, setFriendNickname] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const router = useRouter();
+  const [ranking, setRanking] = useState<RankingEntry[]>([]);
+  const [friendNickname, setFriendNickname] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function loadRanking() {
-    const res = await getRanking()
-    if (!res.error) setRanking(res.data)
+    const res = await getRanking();
+    if (!res.error) setRanking(res.data);
   }
 
   useEffect(() => {
     if (!getToken()) {
-      router.replace('/login')
-      return
+      router.replace("/login");
+      return;
     }
     const init = async () => {
-      await loadRanking()
-    }
-    init()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+      await loadRanking();
+    };
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleAdd(e: React.FormEvent) {
-    e.preventDefault()
-    if (!friendNickname.trim()) return
-    setError('')
-    setLoading(true)
-    const res = await addFriend(friendNickname.trim())
-    setLoading(false)
+    e.preventDefault();
+    if (!friendNickname.trim()) return;
+    setError("");
+    setLoading(true);
+    const res = await addFriend(friendNickname.trim());
+    setLoading(false);
     if (res.error) {
-      setError(res.error)
-      return
+      setError(res.error);
+      return;
     }
-    setFriendNickname('')
-    await loadRanking()
+    setFriendNickname("");
+    await loadRanking();
   }
 
   return (
@@ -68,7 +68,7 @@ export default function SocialPage() {
           />
         </div>
         <Button type="submit" disabled={loading}>
-          {loading ? '…' : 'Adicionar'}
+          {loading ? "…" : "Adicionar"}
         </Button>
       </form>
 
@@ -83,9 +83,9 @@ export default function SocialPage() {
               </span>
               <div className="flex flex-1 flex-col">
                 <span className="font-semibold">{entry.nickname}</span>
-                {entry.titulo && (
+                {entry.title && (
                   <span className="text-xs text-muted-foreground">
-                    {entry.titulo}
+                    {entry.title}
                   </span>
                 )}
               </div>
@@ -102,5 +102,5 @@ export default function SocialPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

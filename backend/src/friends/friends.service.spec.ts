@@ -79,8 +79,8 @@ describe('FriendsService', () => {
       'zeca',
       'bia',
     ]);
-    expect(ranking[0].titulo).toBe('Soberano do Trono');
-    expect(ranking[ranking.length - 1].titulo).toBe('Lanterna da Latrina');
-    expect(ranking[1].patente).toBe('Estagiário do Vaso');
+    expect(ranking[0].title).toBe('Soberano do Trono');
+    expect(ranking[ranking.length - 1].title).toBe('Lanterna da Latrina');
+    expect(ranking[1].patent).toBe('Estagiário do Vaso');
   });
 });

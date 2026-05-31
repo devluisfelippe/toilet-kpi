@@ -10,13 +10,13 @@ import type {
 const EMPTY_CAGADA: CagadaRegistrada = {
   cagadaId: '',
   mission: { id: '', level: 'leve', text: '' },
-  pontosEmJogo: 0,
+  pointsInGame: 0,
 }
 
 const EMPTY_RESULT: ResolveResult = {
   pclDelta: 0,
   totalPcl: 0,
-  patente: '',
+  patent: '',
   mensagem: '',
 }
 
@@ -36,12 +36,12 @@ export async function registrarCagada(): Promise<ServiceResult<CagadaRegistrada>
 
 export async function resolverCagada(
   cagadaId: string,
-  resultado: Resultado,
+  outcome: Resultado,
 ): Promise<ServiceResult<ResolveResult>> {
   try {
     const data = await apiRequest<ResolveResult>(
       `/cagadas/${cagadaId}/resolver`,
-      { method: 'POST', body: { resultado } },
+      { method: 'POST', body: { result: outcome } },
     )
     return { data }
   } catch (err) {

@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { FriendsRepository } from './friends.repository';
 import { UsersService } from '../users/users.service';
-import { patenteDe } from '../domain/scoring';
+import { patent } from '../domain/scoring';
 
 export interface RankingItem {
   nickname: string;
   pcl: number;
-  patente: string;
-  titulo: string;
+  patent: string;
+  title: string;
 }
 
 @Injectable()
@@ -42,16 +42,16 @@ export class FriendsService {
         return {
           nickname,
           pcl,
-          patente: patenteDe(pcl),
-          titulo: patenteDe(pcl),
+          patent: patent(pcl),
+          title: patent(pcl),
         };
       }),
     );
     rankingItems.sort((a, b) => b.pcl - a.pcl);
     if (rankingItems.length > 0) {
-      rankingItems[0].titulo = 'Soberano do Trono';
+      rankingItems[0].title = 'Soberano do Trono';
       if (rankingItems.length > 1)
-        rankingItems[rankingItems.length - 1].titulo = 'Lanterna da Latrina';
+        rankingItems[rankingItems.length - 1].title = 'Lanterna da Latrina';
     }
     return rankingItems;
   }

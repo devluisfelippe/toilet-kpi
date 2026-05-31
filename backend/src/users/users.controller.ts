@@ -18,16 +18,16 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Get current user profile and recent missions' })
   async me(@Req() request: Request & { user: string }) {
-    const perfil = await this.users.perfil(request.user);
-    const cagadasRecentes = await this.cagadas.recent(request.user, 10);
-    const historicoRecente = cagadasRecentes.map((cagada) => ({
+    const profile = await this.users.profile(request.user);
+    const lastestCagadas = await this.cagadas.recent(request.user, 10);
+    const lastestHistoric = lastestCagadas.map((cagada) => ({
       cagadaId: cagada.cagada_id,
       level: cagada.level,
-      missao: cagada.mission_text,
+      mission: cagada.mission_text,
       status: cagada.status,
       pclDelta: cagada.pcl_delta,
-      quando: cagada.created_at,
+      when: cagada.created_at,
     }));
-    return { ...perfil, historicoRecente };
+    return { ...profile, lastestHistoric };
   }
 }

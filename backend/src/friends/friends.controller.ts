@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import { IsString } from 'class-validator';
 import { FriendsService } from './friends.service';
@@ -8,7 +13,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 class AddFriendDto {
   @ApiProperty({ description: 'The nickname of the friend to add' })
   @IsString()
-  nickname!: string;
+  nickname: string;
 }
 
 @ApiTags('Friends')

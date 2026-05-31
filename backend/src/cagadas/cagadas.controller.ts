@@ -14,8 +14,8 @@ export class CagadasController {
 
   @Post()
   @ApiOperation({ summary: 'Register a new mission' })
-  registrar(@Req() request: Request & { user: string }) {
-    return this.cagadas.registrar(request.user);
+  register(@Req() request: Request & { user: string }) {
+    return this.cagadas.register(request.user);
   }
 
   @Post(':id/resolver')
@@ -25,6 +25,6 @@ export class CagadasController {
     @Param('id') cagadaId: string,
     @Body() resolverDto: ResolverDto,
   ) {
-    return this.cagadas.resolver(request.user, cagadaId, resolverDto.resultado);
+    return this.cagadas.resolver(request.user, cagadaId, resolverDto.result);
   }
 }

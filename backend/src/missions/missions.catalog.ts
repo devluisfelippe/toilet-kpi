@@ -1,12 +1,12 @@
 import { Nivel } from '../domain/scoring';
 
-export interface Missao {
+export interface Mission {
   id: string;
   level: Nivel;
   text: string;
 }
 
-export const MISSOES: ReadonlyArray<Missao> = [
+export const MISSIONS: ReadonlyArray<Mission> = [
   {
     id: '1',
     level: 'leve',

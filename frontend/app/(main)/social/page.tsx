@@ -13,11 +13,11 @@ import type { RankingEntry } from '@/services/types'
 export default function SocialPage() {
   const router = useRouter()
   const [ranking, setRanking] = useState<RankingEntry[]>([])
-  const [nick, setNick] = useState('')
+  const [friendNickname, setFriendNickname] = useState('')
   const [loading, setLoading] = useState(false)
-  const [erro, setErro] = useState('')
+  const [error, setError] = useState('')
 
-  async function carregar() {
+  async function loadRanking() {
     const res = await getRanking()
     if (!res.error) setRanking(res.data)
   }
@@ -28,7 +28,7 @@ export default function SocialPage() {
       return
     }
     const init = async () => {
-      await carregar()
+      await loadRanking()
     }
     init()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -36,17 +36,17 @@ export default function SocialPage() {
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
-    if (!nick.trim()) return
-    setErro('')
+    if (!friendNickname.trim()) return
+    setError('')
     setLoading(true)
-    const res = await addFriend(nick.trim())
+    const res = await addFriend(friendNickname.trim())
     setLoading(false)
     if (res.error) {
-      setErro(res.error)
+      setError(res.error)
       return
     }
-    setNick('')
-    await carregar()
+    setFriendNickname('')
+    await loadRanking()
   }
 
   return (
@@ -63,8 +63,8 @@ export default function SocialPage() {
           <Input
             id="nick"
             placeholder="nickname do amigo"
-            value={nick}
-            onChange={(e) => setNick(e.target.value)}
+            value={friendNickname}
+            onChange={(e) => setFriendNickname(e.target.value)}
           />
         </div>
         <Button type="submit" disabled={loading}>
@@ -72,7 +72,7 @@ export default function SocialPage() {
         </Button>
       </form>
 
-      {erro && <p className="text-sm text-destructive">{erro}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="flex flex-col gap-2">
         {ranking.map((entry, i) => (

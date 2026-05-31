@@ -12,18 +12,18 @@ import { login } from '@/services/auth.service'
 export default function LoginPage() {
   const router = useRouter()
   const [nickname, setNickname] = useState('')
-  const [senha, setSenha] = useState('')
-  const [erro, setErro] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setErro('')
+    setError('')
     setLoading(true)
-    const res = await login(nickname.trim(), senha)
+    const res = await login(nickname.trim(), password)
     setLoading(false)
     if (res.error) {
-      setErro(res.error)
+      setError(res.error)
       return
     }
     router.replace('/home')
@@ -54,13 +54,13 @@ export default function LoginPage() {
               id="senha"
               type="password"
               placeholder="••••••••"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
             />
           </div>
-          {erro && <p className="text-sm text-destructive">{erro}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Entrando…' : 'Entrar'}
           </Button>

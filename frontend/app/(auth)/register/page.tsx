@@ -12,23 +12,23 @@ import { register } from '@/services/auth.service'
 export default function RegisterPage() {
   const router = useRouter()
   const [nickname, setNickname] = useState('')
-  const [senha, setSenha] = useState('')
-  const [confirmar, setConfirmar] = useState('')
-  const [erro, setErro] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setErro('')
-    if (senha !== confirmar) {
-      setErro('As senhas não coincidem.')
+    setError('')
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.')
       return
     }
     setLoading(true)
-    const res = await register(nickname.trim(), senha)
+    const res = await register(nickname.trim(), password)
     setLoading(false)
     if (res.error) {
-      setErro(res.error)
+      setError(res.error)
       return
     }
     router.replace('/home')
@@ -59,8 +59,8 @@ export default function RegisterPage() {
               id="senha"
               type="password"
               placeholder="••••••••"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
               required
             />
@@ -71,13 +71,13 @@ export default function RegisterPage() {
               id="confirmar"
               type="password"
               placeholder="••••••••"
-              value={confirmar}
-              onChange={(e) => setConfirmar(e.target.value)}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
               required
             />
           </div>
-          {erro && <p className="text-sm text-destructive">{erro}</p>}
+          {error && <p className="text-sm text-destructive">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Criando conta…' : 'Criar conta'}
           </Button>

@@ -4,12 +4,12 @@ import type { ServiceResult } from './types'
 
 export async function login(
   nickname: string,
-  senha: string,
+  password: string,
 ): Promise<ServiceResult<void>> {
   try {
     const res = await apiRequest<{ token: string }>('/auth/login', {
       method: 'POST',
-      body: { nickname, senha },
+      body: { nickname, senha: password },
       auth: false,
     })
     setToken(res.token)
@@ -24,12 +24,12 @@ export async function login(
 
 export async function register(
   nickname: string,
-  senha: string,
+  password: string,
 ): Promise<ServiceResult<void>> {
   try {
     const res = await apiRequest<{ token: string }>('/auth/register', {
       method: 'POST',
-      body: { nickname, senha },
+      body: { nickname, senha: password },
       auth: false,
     })
     setToken(res.token)

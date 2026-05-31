@@ -27,8 +27,8 @@ function calcStats(historico: HistoricoItem[]) {
 
 export default function PerfilPage() {
   const router = useRouter()
-  const [perfil, setPerfil] = useState<UserProfile | null>(null)
-  const [erro, setErro] = useState('')
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [error, setError] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -38,31 +38,31 @@ export default function PerfilPage() {
       }
       const res = await getMe()
       if (res.error) {
-        setErro(res.error)
+        setError(res.error)
         return
       }
-      setPerfil(res.data)
+      setProfile(res.data)
     }
     init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function handleSair() {
+  function handleSignOut() {
     clearToken()
     router.replace('/login')
   }
 
-  if (!perfil) {
+  if (!profile) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-sm text-muted-foreground">
-          {erro || 'Carregando perfil…'}
+          {error || 'Carregando perfil…'}
         </p>
       </div>
     )
   }
 
-  const stats = calcStats(perfil.historicoRecente)
+  const stats = calcStats(profile.historicoRecente)
 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6">
@@ -72,13 +72,13 @@ export default function PerfilPage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Perfil
           </p>
-          <h1 className="mt-1 text-2xl font-bold">{perfil.nickname}</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">{perfil.patente}</p>
+          <h1 className="mt-1 text-2xl font-bold">{profile.nickname}</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">{profile.patente}</p>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleSair}
+          onClick={handleSignOut}
           className="text-muted-foreground"
         >
           sair
@@ -91,7 +91,7 @@ export default function PerfilPage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Pontos de Cu Limpo
           </p>
-          <p className="text-5xl font-bold tabular-nums">{perfil.pcl}</p>
+          <p className="text-5xl font-bold tabular-nums">{profile.pcl}</p>
           <p className="text-sm text-muted-foreground">PCL acumulados</p>
         </CardContent>
       </Card>
@@ -119,13 +119,13 @@ export default function PerfilPage() {
       </div>
 
       {/* Histórico */}
-      {perfil.historicoRecente.length > 0 ? (
+      {profile.historicoRecente.length > 0 ? (
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Histórico
           </h2>
           <div className="flex flex-col gap-2">
-            {perfil.historicoRecente.map((h) => (
+            {profile.historicoRecente.map((h) => (
               <div
                 key={h.cagadaId}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"

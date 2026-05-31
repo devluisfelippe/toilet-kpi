@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository, UserRow } from './users.repository';
-import { patenteDe } from '../domain/scoring';
+import { patent } from '../domain/scoring';
 
-export interface PerfilResumo {
+export interface ProfileSummary {
   nickname: string;
   pcl: number;
-  patente: string;
+  patent: string;
 }
 
 @Injectable()
@@ -28,8 +28,8 @@ export class UsersService {
     return this.repository.setScore(nickname, pcl);
   }
 
-  async perfil(nickname: string): Promise<PerfilResumo> {
+  async profile(nickname: string): Promise<ProfileSummary> {
     const pcl = await this.repository.getScore(nickname);
-    return { nickname, pcl, patente: patenteDe(pcl) };
+    return { nickname, pcl, patent: patent(pcl) };
   }
 }

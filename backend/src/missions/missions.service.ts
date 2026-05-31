@@ -3,14 +3,14 @@ import { Missao, MISSOES } from './missions.catalog';
 
 @Injectable()
 export class MissionsService {
-  private readonly catalogo: ReadonlyArray<Missao> = MISSOES;
+  private readonly catalog: ReadonlyArray<Missao> = MISSOES;
 
-  sortear(gerarAleatorio: () => number = Math.random): Missao {
-    const indiceSorteado = Math.floor(gerarAleatorio() * this.catalogo.length);
-    return this.catalogo[Math.min(indiceSorteado, this.catalogo.length - 1)];
+  sort(generateRandom: () => number = Math.random): Missao {
+    const indexSort = Math.floor(generateRandom() * this.catalog.length);
+    return this.catalog[Math.min(indexSort, this.catalog.length - 1)];
   }
 
   byId(id: string): Missao | undefined {
-    return this.catalogo.find((missao) => missao.id === id);
+    return this.catalog.find((missao) => missao.id === id);
   }
 }

@@ -17,7 +17,7 @@ export class JwtAuthGuard implements CanActivate {
       .getRequest<Request & { user?: string }>();
     const authorizationHeader = request.headers['authorization'];
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Token ausente.');
+      throw new UnauthorizedException('Token .');
     }
     const token = authorizationHeader.slice('Bearer '.length);
     try {
@@ -25,7 +25,7 @@ export class JwtAuthGuard implements CanActivate {
       request.user = payload.sub;
       return true;
     } catch {
-      throw new UnauthorizedException('Token inválido.');
+      throw new UnauthorizedException('Token invalid.');
     }
   }
 }

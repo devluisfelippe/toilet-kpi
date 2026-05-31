@@ -11,7 +11,7 @@ const missao = {
 };
 
 interface Mocks {
-  missions: { sortear: jest.Mock; byId: jest.Mock };
+  missions: { sort: jest.Mock; byId: jest.Mock };
   repository: {
     insertPending: jest.Mock;
     findById: jest.Mock;
@@ -23,7 +23,7 @@ interface Mocks {
 
 function deps(overrides: Partial<Mocks> = {}): Mocks {
   return {
-    missions: { sortear: jest.fn().mockReturnValue(missao), byId: jest.fn() },
+    missions: { sort: jest.fn().mockReturnValue(missao), byId: jest.fn() },
     repository: {
       insertPending: jest.fn().mockResolvedValue('uuid-1'),
       findById: jest.fn(),
@@ -50,7 +50,7 @@ describe('CagadasService', () => {
   it('registra cagada sorteando missão e devolve pontos em jogo', async () => {
     const mocks = deps();
     const service = makeService(mocks);
-    const resposta = await service.registrar('zeca');
+    const resposta = await service.register('zeca');
     expect(mocks.repository.insertPending).toHaveBeenCalledWith('zeca', missao);
     expect(resposta).toEqual({
       cagadaId: 'uuid-1',
@@ -74,7 +74,7 @@ describe('CagadasService', () => {
     const resposta = await service.resolver('zeca', 'uuid-1', 'cumprida');
     expect(resposta.pclDelta).toBe(70);
     expect(resposta.totalPcl).toBe(170);
-    expect(resposta.patente).toBe('Office-boy da Privada');
+    expect(resposta.patent).toBe('Office-boy da Privada');
     expect(mocks.users.setScore).toHaveBeenCalledWith('zeca', 170);
   });
 

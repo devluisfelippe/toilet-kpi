@@ -199,7 +199,7 @@ git commit -m "feat(backend): typed app config loader"
 
 ```ts
 // backend/src/domain/scoring.spec.ts
-import { pclDelta, aplicarPcl, patenteDe, pontosEmJogo, Nivel } from './scoring';
+import { pclDelta, applyPcl, patent, pontosEmJogo, Nivel } from './scoring';
 
 describe('scoring', () => {
   it('dá os pontos certos ao cumprir por nível', () => {
@@ -215,20 +215,20 @@ describe('scoring', () => {
   });
 
   it('aplica o delta com piso em zero', () => {
-    expect(aplicarPcl(100, 30)).toBe(130);
-    expect(aplicarPcl(10, -20)).toBe(0); // não fica negativo
+    expect(applyPcl(100, 30)).toBe(130);
+    expect(applyPcl(10, -20)).toBe(0); // não fica negativo
   });
 
   it('deriva a patente a partir do total', () => {
-    expect(patenteDe(0)).toBe('Estagiário do Vaso');
-    expect(patenteDe(99)).toBe('Estagiário do Vaso');
-    expect(patenteDe(100)).toBe('Office-boy da Privada');
-    expect(patenteDe(3000)).toBe('CEO do Banheiro Sustentável');
-    expect(patenteDe(999999)).toBe('Lenda Iluminada do Papel Zero');
+    expect(patent(0)).toBe('Estagiário do Vaso');
+    expect(patent(99)).toBe('Estagiário do Vaso');
+    expect(patent(100)).toBe('Office-boy da Privada');
+    expect(patent(3000)).toBe('CEO do Banheiro Sustentável');
+    expect(patent(999999)).toBe('Lenda Iluminada do Papel Zero');
   });
 
   it('pontos em jogo é o valor de cumprir o nível', () => {
-    expect(pontosEmJogo('medio')).toBe(30);
+    expect(pointsInGame('medio')).toBe(30);
   });
 
   it('Nivel é usável como tipo', () => {
@@ -272,15 +272,15 @@ export function pclDelta(nivel: Nivel, resultado: Resultado): number {
   return PCL_POR_NIVEL[nivel][resultado];
 }
 
-export function aplicarPcl(atual: number, delta: number): number {
+export function applyPcl(atual: number, delta: number): number {
   return Math.max(0, atual + delta);
 }
 
-export function patenteDe(pcl: number): string {
+export function patent(pcl: number): string {
   return PATENTES.find((p) => pcl >= p.min)!.nome;
 }
 
-export function pontosEmJogo(nivel: Nivel): number {
+export function pointsInGame(nivel: Nivel): number {
   return PCL_POR_NIVEL[nivel].cumprida;
 }
 ```
@@ -354,15 +354,15 @@ import { MISSOES } from './missions.catalog';
 describe('MissionsService', () => {
   it('sorteia uma missão do catálogo', () => {
     const svc = new MissionsService();
-    const m = svc.sortear();
+    const m = svc.sort();
     expect(MISSOES.some((x) => x.id === m.id)).toBe(true);
   });
 
   it('usa o rng injetado para escolher o índice', () => {
     const svc = new MissionsService();
-    const primeira = svc.sortear(() => 0); // índice 0
+    const primeira = svc.sort(() => 0); // índice 0
     expect(primeira.id).toBe(MISSOES[0].id);
-    const ultima = svc.sortear(() => 0.999999); // último índice
+    const ultima = svc.sort(() => 0.999999); // último índice
     expect(ultima.id).toBe(MISSOES[MISSOES.length - 1].id);
   });
 
@@ -390,7 +390,7 @@ import { Missao, MISSOES } from './missions.catalog';
 export class MissionsService {
   private readonly catalogo: ReadonlyArray<Missao> = MISSOES;
 
-  sortear(rng: () => number = Math.random): Missao {
+  sort(rng: () => number = Math.random): Missao {
     const i = Math.floor(rng() * this.catalogo.length);
     return this.catalogo[Math.min(i, this.catalogo.length - 1)];
   }
@@ -631,7 +631,7 @@ git commit -m "feat(users): cassandra repository for identity and score"
 // backend/src/users/users.service.ts
 import { Injectable } from '@nestjs/common';
 import { UsersRepository, UserRow } from './users.repository';
-import { patenteDe } from '../domain/scoring';
+import { patent } from '../domain/scoring';
 
 export interface PerfilResumo {
   nickname: string;
@@ -661,7 +661,7 @@ export class UsersService {
 
   async perfil(nickname: string): Promise<PerfilResumo> {
     const pcl = await this.repo.getScore(nickname);
-    return { nickname, pcl, patente: patenteDe(pcl) };
+    return { nickname, pcl, patente: patent(pcl) };
   }
 }
 ```
@@ -1117,7 +1117,7 @@ const missao = { id: 'insano-rio', level: 'insano' as const, text: 'Lave-se no r
 
 function deps(over: any = {}) {
   return {
-    missions: { sortear: jest.fn().mockReturnValue(missao), byId: jest.fn() },
+    missions: { sort: jest.fn().mockReturnValue(missao), byId: jest.fn() },
     repo: {
       insertPending: jest.fn().mockResolvedValue('uuid-1'),
       findById: jest.fn(),
@@ -1205,7 +1205,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { MissionsService } from '../missions/missions.service';
 import { CagadasRepository } from './cagadas.repository';
 import { UsersService } from '../users/users.service';
-import { aplicarPcl, patenteDe, pclDelta, pontosEmJogo, Nivel, Resultado } from '../domain/scoring';
+import { applyPcl, patent, pclDelta, pontosEmJogo, Nivel, Resultado } from '../domain/scoring';
 
 const MENSAGENS: Record<Resultado, string> = {
   cumprida: 'Respeito. Sua patente agradece e o planeta te deve uma.',
@@ -1222,12 +1222,12 @@ export class CagadasService {
   ) {}
 
   async registrar(nickname: string) {
-    const missao = this.missions.sortear();
+    const missao = this.missions.sort();
     const cagadaId = await this.repo.insertPending(nickname, missao);
     return {
       cagadaId,
       mission: { id: missao.id, level: missao.level, text: missao.text },
-      pontosEmJogo: pontosEmJogo(missao.level),
+      pontosEmJogo: pointsInGame(missao.level),
     };
   }
 
@@ -1237,7 +1237,7 @@ export class CagadasService {
     if (cagada.status !== 'pendente') throw new ConflictException('Essa cagada já foi resolvida.');
 
     const atual = await this.users.getScore(nickname);
-    const novo = aplicarPcl(atual, pclDelta(cagada.level as Nivel, resultado));
+    const novo = applyPcl(atual, pclDelta(cagada.level as Nivel, resultado));
     const deltaAplicado = novo - atual;
 
     await this.users.setScore(nickname, novo);
@@ -1246,7 +1246,7 @@ export class CagadasService {
     return {
       pclDelta: deltaAplicado,
       totalPcl: novo,
-      patente: patenteDe(novo),
+      patente: patent(novo),
       mensagem: MENSAGENS[resultado],
     };
   }
@@ -1537,7 +1537,7 @@ Expected: FAIL — `Cannot find module './friends.service'`.
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { FriendsRepository } from './friends.repository';
 import { UsersService } from '../users/users.service';
-import { patenteDe } from '../domain/scoring';
+import { patent } from '../domain/scoring';
 
 export interface RankingItem {
   nickname: string;
@@ -1569,7 +1569,7 @@ export class FriendsService {
     const itens = await Promise.all(
       nicks.map(async (nickname) => {
         const pcl = await this.users.getScore(nickname);
-        return { nickname, pcl, patente: patenteDe(pcl), titulo: patenteDe(pcl) };
+        return { nickname, pcl, patente: patent(pcl), titulo: patent(pcl) };
       }),
     );
     itens.sort((a, b) => b.pcl - a.pcl);

@@ -18,7 +18,9 @@ describe('MissionsService', () => {
 
   it('encontra missão por id', () => {
     const service = new MissionsService();
-    expect(service.byId('insano-rio')?.level).toBe('insano');
+    const insano = MISSOES.find((missao) => missao.level === 'insano');
+    expect(insano).toBeDefined();
+    expect(service.byId(insano!.id)?.level).toBe('insano');
     expect(service.byId('nao-existe')).toBeUndefined();
   });
 });

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CassandraService } from '../cassandra/cassandra.service';
-import { Missao } from '../missions/missions.catalog';
+import { Mission } from '../missions/missions.catalog';
 
 export interface CagadaRow {
   cagada_id: string;
@@ -42,7 +42,7 @@ export class CagadasRepository {
     };
   }
 
-  async insertPending(nickname: string, missao: Missao): Promise<string> {
+  async insertPending(nickname: string, missao: Mission): Promise<string> {
     const cagadaId = this.cassandra.timeuuidNow();
     await this.cassandra.execute(
       `INSERT INTO cagadas_by_user

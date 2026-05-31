@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { Missao, MISSOES } from './missions.catalog';
+import { Mission, MISSIONS } from './missions.catalog';
 
 @Injectable()
 export class MissionsService {
-  private readonly catalog: ReadonlyArray<Missao> = MISSOES;
+  private readonly catalog: ReadonlyArray<Mission> = MISSIONS;
 
-  sort(generateRandom: () => number = Math.random): Missao {
+  sort(generateRandom: () => number = Math.random): Mission {
     const indexSort = Math.floor(generateRandom() * this.catalog.length);
     return this.catalog[Math.min(indexSort, this.catalog.length - 1)];
   }
 
-  byId(id: string): Missao | undefined {
-    return this.catalog.find((missao) => missao.id === id);
+  byId(id: string): Mission | undefined {
+    return this.catalog.find((mission) => mission.id === id);
   }
 }

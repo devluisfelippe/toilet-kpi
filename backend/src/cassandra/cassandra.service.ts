@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Client, types } from 'cassandra-driver';
 import { loadConfig } from '../config/cassandra.config';
-import { MISSOES } from '../missions/missions.catalog';
+import { MISSIONS } from '../missions/missions.catalog';
 
 @Injectable()
 export class CassandraService implements OnModuleInit, OnModuleDestroy {
@@ -94,10 +94,10 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async seedMissions(): Promise<void> {
-    for (const missao of MISSOES) {
+    for (const mission of MISSIONS) {
       await this.client.execute(
         `INSERT INTO missions (mission_id, level, text) VALUES (?, ?, ?)`,
-        [missao.id, missao.level, missao.text],
+        [mission.id, mission.level, mission.text],
         { prepare: true },
       );
     }

@@ -9,16 +9,18 @@ export type Resultado = 'cumprida' | 'falhou' | 'pulou'
 
 export interface HistoricoItem {
   cagadaId: string
-  missao: string
+  level: string
+  mission: string
   status: Resultado
   pclDelta: number
+  when: string
 }
 
 export interface UserProfile {
   nickname: string
   pcl: number
-  patente: string
-  historicoRecente: HistoricoItem[]
+  patent: string
+  lastestHistoric: HistoricoItem[]
 }
 
 export interface MissaoInfo {
@@ -36,12 +38,13 @@ export interface CagadaRegistrada {
 export interface ResolveResult {
   pclDelta: number
   totalPcl: number
-  patente: string
+  patent: string
   mensagem: string
 }
 
 export interface RankingEntry {
   nickname: string
   pcl: number
-  titulo: string
+  patent: string
+  title: string
 }

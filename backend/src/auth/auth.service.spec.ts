@@ -21,9 +21,9 @@ describe('AuthService', () => {
       users as unknown as UsersService,
       jwt as unknown as JwtService,
     );
-    const resposta = await service.register('zeca', 'segredo');
+    const response = await service.register('zeca', 'segredo');
     expect(users.createUser).toHaveBeenCalledWith('zeca', expect.any(String));
-    expect(resposta.token).toBe('token-fake');
+    expect(response.token).toBe('token-fake');
   });
 
   it('rejeita registro de nickname já existente', async () => {
@@ -68,7 +68,7 @@ describe('AuthService', () => {
       users as unknown as UsersService,
       jwt as unknown as JwtService,
     );
-    const resposta = await service.login('zeca', 'certa');
-    expect(resposta.token).toBe('token-fake');
+    const response = await service.login('zeca', 'certa');
+    expect(response.token).toBe('token-fake');
   });
 });

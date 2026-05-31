@@ -126,7 +126,7 @@ export default function HomePage() {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {profile.nickname}
           </p>
-          <p className="mt-0.5 text-sm font-medium">{profile.patente}</p>
+          <p className="mt-0.5 text-sm font-medium">{profile.patent}</p>
           <p className="text-2xl font-bold tabular-nums">
             {profile.pcl}{' '}
             <span className="text-sm font-normal text-muted-foreground">PCL</span>
@@ -164,7 +164,7 @@ export default function HomePage() {
                 {result.pclDelta} PCL
               </p>
               <p className="text-sm text-muted-foreground">
-                Total: {result.totalPcl} · {result.patente}
+                Total: {result.totalPcl} · {result.patent}
               </p>
               <Button
                 className="mt-2 w-full"
@@ -183,7 +183,7 @@ export default function HomePage() {
       )}
 
       {/* History + pending mission */}
-      {(activeMission || profile.historicoRecente.length > 0) && (
+      {(activeMission || profile.lastestHistoric.length > 0) && (
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Histórico recente
@@ -241,13 +241,13 @@ export default function HomePage() {
               </div>
             )}
 
-            {profile.historicoRecente.map((h) => (
+            {profile.lastestHistoric.map((h) => (
               <div
                 key={h.cagadaId}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
               >
                 <span className="max-w-[55%] truncate text-sm text-muted-foreground">
-                  {h.missao}
+                  {h.mission}
                 </span>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge

@@ -9,7 +9,7 @@ export async function login(
   try {
     const res = await apiRequest<{ token: string }>('/auth/login', {
       method: 'POST',
-      body: { nickname, senha: password },
+      body: { nickname, password },
       auth: false,
     })
     setToken(res.token)
@@ -29,7 +29,7 @@ export async function register(
   try {
     const res = await apiRequest<{ token: string }>('/auth/register', {
       method: 'POST',
-      body: { nickname, senha: password },
+      body: { nickname, password },
       auth: false,
     })
     setToken(res.token)

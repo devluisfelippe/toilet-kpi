@@ -62,7 +62,7 @@ export default function PerfilPage() {
     )
   }
 
-  const stats = calcStats(profile.historicoRecente)
+  const stats = calcStats(profile.lastestHistoric)
 
   return (
     <div className="flex flex-col gap-6 p-4 sm:p-6">
@@ -73,7 +73,7 @@ export default function PerfilPage() {
             Perfil
           </p>
           <h1 className="mt-1 text-2xl font-bold">{profile.nickname}</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">{profile.patente}</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{profile.patent}</p>
         </div>
         <Button
           variant="ghost"
@@ -119,19 +119,19 @@ export default function PerfilPage() {
       </div>
 
       {/* Histórico */}
-      {profile.historicoRecente.length > 0 ? (
+      {profile.lastestHistoric.length > 0 ? (
         <section>
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Histórico
           </h2>
           <div className="flex flex-col gap-2">
-            {profile.historicoRecente.map((h) => (
+            {profile.lastestHistoric.map((h) => (
               <div
                 key={h.cagadaId}
                 className="flex items-center justify-between rounded-lg border border-border px-3 py-2"
               >
                 <span className="max-w-[55%] truncate text-sm text-muted-foreground">
-                  {h.missao}
+                  {h.mission}
                 </span>
                 <div className="flex shrink-0 items-center gap-2">
                   <Badge variant={statusVariant(h.status)} className="text-xs">

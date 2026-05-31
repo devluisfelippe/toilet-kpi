@@ -1,5 +1,4 @@
-// frontend/lib/api.ts
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api'
 const TOKEN_KEY = 'toilet_kpi_token'
 
 export function getToken(): string | null {

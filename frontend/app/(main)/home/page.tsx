@@ -193,18 +193,18 @@ export default function HomePage() {
             {activeMission && (
               <div className="rounded-lg border border-amber-300 bg-amber-50">
                 <button
-                  className="flex w-full items-center justify-between px-3 py-2 text-left"
+                  className="flex w-full flex-col gap-2 px-3 py-2 text-left"
                   onClick={() => setResolving((v) => !v)}
                 >
-                  <span className="max-w-[55%] truncate text-sm font-medium text-amber-800">
+                  <span className="text-sm font-medium text-amber-800">
                     {activeMission.mission.text}
                   </span>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <Badge className="bg-amber-400 text-xs text-amber-900 hover:bg-amber-400">
                       pendente
                     </Badge>
                     <span className="text-xs text-amber-600">
-                      {resolving ? '▲' : '▼'}
+                      {resolving ? '▲ fechar' : '▼ resolver'}
                     </span>
                   </div>
                 </button>

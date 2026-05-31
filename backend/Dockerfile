@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # ===== base =====================================================
-# Debian slim (não-musl) para evitar dor de compilação nativa do bcrypt.
-FROM node:22-slim AS base
+# Debian slim (não-musl) para preservar a compilação nativa do bcrypt.
+# Node 24: node:sqlite (módulo nativo) disponível sem flag.
+FROM node:24-slim AS base
 WORKDIR /app
 # Ferramentas de build para módulos nativos (bcrypt).
 RUN apt-get update \

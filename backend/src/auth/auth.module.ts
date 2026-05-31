@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UsersModule } from '../users/users.module';
-import { loadConfig } from '../config/cassandra.config';
+import { loadConfig } from '../config/app.config';
 
 @Module({
   imports: [

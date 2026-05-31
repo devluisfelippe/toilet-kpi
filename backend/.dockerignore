@@ -11,3 +11,7 @@ yarn-error.log*
 yarn-debug.log*
 Dockerfile
 .dockerignore
+
+data
+*.db
+*.db-*

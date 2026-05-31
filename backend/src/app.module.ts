@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { CassandraModule } from './cassandra/cassandra.module';
+import { DatabaseModule } from './database/database.module';
 import { MissionsModule } from './missions/missions.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
@@ -13,7 +13,7 @@ import { AllExceptionsFilter } from './common/all-exceptions.filter';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    CassandraModule,
+    DatabaseModule,
     MissionsModule,
     UsersModule,
     AuthModule,

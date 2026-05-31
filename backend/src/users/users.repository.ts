@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CassandraService } from '../cassandra/cassandra.service';
+import { DatabaseService } from '../database/database.service';
 
 export interface UserRow {
   nickname: string;
@@ -7,42 +7,57 @@ export interface UserRow {
   created_at: Date;
 }
 
+interface RawUserRow {
+  nickname: string;
+  password_hash: string;
+  created_at: string;
+}
+
 @Injectable()
 export class UsersRepository {
-  constructor(private readonly cassandra: CassandraService) {}
+  constructor(private readonly database: DatabaseService) {}
 
-  async insertUser(nickname: string, passwordHash: string): Promise<void> {
-    await this.cassandra.execute(
-      `INSERT INTO users_by_nick (nickname, password_hash, created_at) VALUES (?, ?, ?)`,
-      [nickname, passwordHash, new Date()],
+  insertUser(nickname: string, passwordHash: string): Promise<void> {
+    this.database.run(
+      `INSERT INTO users (nickname, password_hash, created_at) VALUES (?, ?, ?)`,
+      [nickname, passwordHash, new Date().toISOString()],
     );
-    await this.cassandra.execute(
-      `INSERT INTO score_by_nick (nickname, pcl) VALUES (?, ?)`,
-      [nickname, 0],
-    );
+    this.database.run(`INSERT INTO scores (nickname, pcl) VALUES (?, ?)`, [
+      nickname,
+      0,
+    ]);
+    return Promise.resolve();
   }
 
-  async findUser(nickname: string): Promise<UserRow | null> {
-    const resultSet = await this.cassandra.execute(
-      `SELECT nickname, password_hash, created_at FROM users_by_nick WHERE nickname = ?`,
+  findUser(nickname: string): Promise<UserRow | null> {
+    const row = this.database.get<RawUserRow>(
+      `SELECT nickname, password_hash, created_at FROM users WHERE nickname = ?`,
       [nickname],
     );
-    return (resultSet.first() as unknown as UserRow) ?? null;
+    const user = row
+      ? {
+          nickname: row.nickname,
+          password_hash: row.password_hash,
+          created_at: new Date(row.created_at),
+        }
+      : null;
+    return Promise.resolve(user);
   }
 
-  async getScore(nickname: string): Promise<number> {
-    const resultSet = await this.cassandra.execute(
-      `SELECT pcl FROM score_by_nick WHERE nickname = ?`,
+  getScore(nickname: string): Promise<number> {
+    const row = this.database.get<{ pcl: number }>(
+      `SELECT pcl FROM scores WHERE nickname = ?`,
       [nickname],
     );
-    const row = resultSet.first();
-    return row ? Number(row['pcl']) : 0;
+    return Promise.resolve(row ? Number(row.pcl) : 0);
   }
 
-  async setScore(nickname: string, pcl: number): Promise<void> {
-    await this.cassandra.execute(
-      `INSERT INTO score_by_nick (nickname, pcl) VALUES (?, ?)`,
+  setScore(nickname: string, pcl: number): Promise<void> {
+    this.database.run(
+      `INSERT INTO scores (nickname, pcl) VALUES (?, ?)
+       ON CONFLICT(nickname) DO UPDATE SET pcl = excluded.pcl`,
       [nickname, pcl],
     );
+    return Promise.resolve();
   }
 }

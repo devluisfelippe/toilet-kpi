@@ -1,45 +1,25 @@
 name: toilet-kpi
 
 services:
-  cassandra:
-    image: cassandra:5
-    container_name: toilet-kpi-cassandra
-    environment:
-      - MAX_HEAP_SIZE=512M
-      - HEAP_NEWSIZE=128M
-    ports:
-      - "9042:9042"
-    env_file:
-      - .env
-    volumes:
-      - cassandra-data:/var/lib/cassandra
-    healthcheck:
-      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
-      interval: 15s
-      timeout: 10s
-      retries: 12
-    networks:
-      - toilet-kpi-net
-
   backend:
     build:
       context: ./
       target: prod
     container_name: toilet-kpi-backend
-    depends_on:
-      cassandra:
-        condition: service_healthy
     env_file:
       - .env
+    environment:
+      - DATABASE_FILE=/app/data/toilet_kpi.db
     ports:
       - "3001:3001"
-
+    volumes:
+      - backend-data:/app/data
     restart: unless-stopped
     networks:
       - toilet-kpi-net
 
 volumes:
-  cassandra-data:
+  backend-data:
 
 networks:
   toilet-kpi-net:

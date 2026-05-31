@@ -1,27 +1,28 @@
 import { Injectable } from '@nestjs/common';
-import { CassandraService } from '../cassandra/cassandra.service';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class FriendsRepository {
-  constructor(private readonly cassandra: CassandraService) {}
+  constructor(private readonly database: DatabaseService) {}
 
-  async addMutual(nickname: string, friendNickname: string): Promise<void> {
-    const now = new Date();
-    await this.cassandra.execute(
-      `INSERT INTO friendships_by_user (owner_nick, friend_nick, created_at) VALUES (?, ?, ?)`,
+  addMutual(nickname: string, friendNickname: string): Promise<void> {
+    const now = new Date().toISOString();
+    this.database.run(
+      `INSERT OR IGNORE INTO friendships (owner_nick, friend_nick, created_at) VALUES (?, ?, ?)`,
       [nickname, friendNickname, now],
     );
-    await this.cassandra.execute(
-      `INSERT INTO friendships_by_user (owner_nick, friend_nick, created_at) VALUES (?, ?, ?)`,
+    this.database.run(
+      `INSERT OR IGNORE INTO friendships (owner_nick, friend_nick, created_at) VALUES (?, ?, ?)`,
       [friendNickname, nickname, now],
     );
+    return Promise.resolve();
   }
 
-  async listFriends(owner: string): Promise<string[]> {
-    const resultSet = await this.cassandra.execute(
-      `SELECT friend_nick FROM friendships_by_user WHERE owner_nick = ?`,
+  listFriends(owner: string): Promise<string[]> {
+    const rows = this.database.all<{ friend_nick: string }>(
+      `SELECT friend_nick FROM friendships WHERE owner_nick = ?`,
       [owner],
     );
-    return resultSet.rows.map((row) => row['friend_nick'] as string);
+    return Promise.resolve(rows.map((row) => row.friend_nick));
   }
 }

@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from './app.module';
 
 describe('AppModule (wiring)', () => {
-  it('resolve o grafo de dependências sem conectar ao Cassandra', async () => {
+  it('resolve o grafo de dependências sem abrir o banco', async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

@@ -24,6 +24,13 @@ jobs:
 
             git pull origin main
 
-            docker compose down
-            docker compose build --no-cache
-            docker compose up -d
+            docker build -t toilet-kpi-backend:new .
+                    
+            docker rm -f toilet-kpi-backend 2>/dev/null || true
+                    
+            docker tag toilet-kpi-backend:new toilet-kpi-backend:latest
+                    
+            docker run -d \
+              --name toilet-kpi-backend \
+              -p 3001:3001 \
+              toilet-kpi-backend:latest
